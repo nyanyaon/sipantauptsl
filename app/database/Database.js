@@ -1,12 +1,62 @@
 const db = require('./Config');
 
-let sql = `
-    SELECT * FROM desalengkap
-`
-db.run(sql, (err, result) => {
-    if(err) throw err;
+function getAll(tablename) { 
+    db.all(`SELECT * FROM ${tablename}`, (err, row) => {
+        if(err) console.log(err)
+        return row;
+    });
 
-    console.log(result);
-});
+    db.close();
+}
 
-db.close();
+function insertDesaLengkap(data) {
+    db.serialize(() => {
+        const stmt = db.prepare("INSERT INTO desalengkap VALUES (?, ?, ?)");
+        stmt.run([null, data, time]);
+        stmt.finalize();
+    });
+
+    db.close();
+}
+
+function insertInto(name, data, time) {
+    db.serialize(() => {
+        const stmt = db.prepare(`INSERT INTO ${name} VALUES (?, ?)`);
+        stmt.run([data, time]);
+        stmt.finalize();
+    });
+}
+
+function createTable(tablename) {
+    db.serialize(() => {
+        db.run(`CREATE TABLE IF NOT EXISTS ${tablename} (
+            data TEXT,
+            time TEXT
+        )`);
+        
+        console.log("Success create table " + tablename);
+    });
+}
+
+function deleteTable(tablename) {
+    db.serialize(() => {
+        db.run(`DROP TABLE IF EXISTS ${tablename}`);
+        
+        console.log("Success delete table " + tablename);
+    });
+
+    db.close();
+}
+
+function closeConn() {
+    db.close();
+}
+
+
+module.exports = {
+    closeConn,
+    createTable,
+    deleteTable,
+    insertInto,
+    getAll
+}

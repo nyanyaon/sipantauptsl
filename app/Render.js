@@ -1,8 +1,8 @@
 const dataKinerjaProv = require('../data/peringkat.json');
-const dataKinerjaKantah = require('../data/kinerja_kantah.json');
-const dataKuantitas = require('../data/rekap_kuantitas.json');
-const earlyWarning = require('../data/early_warning.json');
-const dataDetailDesa = require('../data/detail_desalengkap.json');
+const dataKinerjaKantah = require('../data/kinerjakantah.json');
+const dataKuantitas = require('../data/rekapkuantitas.json');
+const earlyWarning = require('../data/earlywarning.json');
+const dataDetailDesa = require('../data/detaildesalengkap.json');
 const nodeHtmlToImage = require('node-html-to-image');
 
 const KANTAH = [

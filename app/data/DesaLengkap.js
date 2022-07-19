@@ -25,7 +25,7 @@ async function main(browser, headless = false) {
         data.push(kantah);
     }
 
-    writer.toJson(data, "desa_lengkap");
+    writer.toJson(data, "desalengkap");
 
     await page.close();
 

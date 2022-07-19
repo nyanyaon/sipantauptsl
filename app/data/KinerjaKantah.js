@@ -29,7 +29,7 @@ async function main(browser, headless = false) {
 
     await page.close();
 
-    writer.toJson(data, "kinerja_kantah");
+    writer.toJson(data, "kinerjakantah");
 
     return 1;
 }

@@ -33,7 +33,7 @@ async function main(browser, headless = false) {
         data.push(kantah);
     }
 
-    writer.toJson(data, 'rekap_kuantitas');
+    writer.toJson(data, 'rekapkuantitas');
 
     await page.close();
 

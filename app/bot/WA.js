@@ -9,9 +9,9 @@ const client = new Client({
 });
 
 let list_contact = [
-  // '6282144027829@c.us',
+  '6282144027829@c.us',
   '6285739226216@c.us',
-  // '6281909001900@c.us',
+  '6281909001900@c.us',
   // '6282144485767@c.us',
   // '6281236137288@c.us',
 ];
@@ -25,13 +25,13 @@ client.on('qr', (qr) => {
 
 client.on('ready', async () => {
   const peringkat = require('../../data/peringkat.json');
-  const dataEarlyWarning = require('../../data/early_warning.json');
-  const desaLengkap = require('../../data/desa_lengkap.json');
+  const dataEarlyWarning = require('../../data/earlywarning.json');
+  const desaLengkap = require('../../data/desalengkap.json');
   var jumlahDesa = 0;
   desaLengkap.map(desa => { jumlahDesa += new Number(desa.jumlah) })
 
   console.log('Client is ready!');
-  cron.schedule('*/5 * * * *', async () => {
+  cron.schedule('10 8 * * *', async () => {
     console.log('running a task every 5 minute');
     for(number of list_contact) {
       client.sendMessage(number, 

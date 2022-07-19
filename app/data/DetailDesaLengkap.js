@@ -57,7 +57,7 @@ async function main(browser, headless = false) {
         await page.goBack();
     }
 
-    writer.toJson(data, "detail_desalengkap");
+    writer.toJson(data, "detaildesalengkap");
 
     await page.close();
 

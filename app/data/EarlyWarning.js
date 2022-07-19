@@ -28,7 +28,7 @@ async function main(browser, headless = true) {
         data.push(kantah);
     }
 
-    writer.toJson(data, "early_warning");
+    writer.toJson(data, "earlywarning");
 
     await page.close();
 
