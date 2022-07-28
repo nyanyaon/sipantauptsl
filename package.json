@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "bot analytic ptsl",
   "main": "app.js",
+  "type": "commonjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,15 +23,14 @@
     "csv-writer": "^1.6.0",
     "dotenv": "^16.0.1",
     "edge-paths": "^2.2.1",
+    "inquirer": "^8.0.0",
     "node-cron": "^3.0.1",
     "node-html-to-image": "^3.2.4",
     "puppeteer": "^15.3.1",
     "qrcode-terminal": "^0.12.0",
     "sqlite3": "^5.0.8",
     "uuid": "^8.3.2",
-    "whatsapp-web.js": "^1.17.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.20.0"
+    "whatsapp-web.js": "^1.17.0",
+    "winston": "^3.8.1"
   }
 }

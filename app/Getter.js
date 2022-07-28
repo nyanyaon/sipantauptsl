@@ -46,7 +46,7 @@ async function getAll() {
                 countFix+=data;
             });
 
-            if(countFix === 6) {
+            if(countFix === 7) {
                 browser.close();
                 return 0;
             }
@@ -54,11 +54,36 @@ async function getAll() {
     });
 }
 
-function get() {
+async function getDetailDesaLengkap() {
+    var browserwsEndPoint = await startPuppeter(true);
+    const browser = await puppeteer.connect({
+        browserWSEndpoint: browserwsEndPoint,
+    });
 
+    const data = require("./data/DetailDesaLengkap");
+    await data.main(browser).then(() => {
+        console.log("Fetched");
+        browser.close();
+    });
+}
+
+async function getRekapTahapan() {
+    var browserwsEndPoint = await startPuppeter(true);
+    const browser = await puppeteer.connect({
+        browserWSEndpoint: browserwsEndPoint,
+
+    });
+
+    const data = require("./data/RekapTahapan");
+    await data.main(browser).then(() => {
+        console.log("Fetched");
+        browser.close();
+    });
 }
 
 module.exports = {
     getAll,
     startPuppeter,
+    getDetailDesaLengkap,
+    getRekapTahapan
 }

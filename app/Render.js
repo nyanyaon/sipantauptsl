@@ -1,5 +1,6 @@
 const dataKinerjaProv = require('../data/peringkat.json');
 const dataKinerjaKantah = require('../data/kinerjakantah.json');
+const dataKinerjaTahapan = require('../data/rekaptahapan.json');
 const dataKuantitas = require('../data/rekapkuantitas.json');
 const earlyWarning = require('../data/earlywarning.json');
 const dataDetailDesa = require('../data/detaildesalengkap.json');
@@ -16,20 +17,19 @@ const KANTAH = [
     "Kota Bima",
     "Kab. Sumbawa Barat",
     "Kab. Lombok Utara"
-]
-
+];
 
 function renderKinerja() {
     let pos = dataKinerjaProv.findIndex((val) => val.nama === "NTB");
-    table = dataKinerjaProv.map((val, index) => {
-        if(index < pos-5 || index > pos+5 ) {
+    let table = dataKinerjaProv.map((val, index) => {
+        if (index < pos - 5 || index > pos + 5) {
             return;
         }
         var perencanaanFix = new Number(val.nilai_perencanaan.replace(",", "."));
         var kuantitasFix = new Number(val.nilai_kuantitas.replace(",", "."));
         var kualitasFix = new Number(val.nilai_kualitas.replace(",", "."));
         var kinerjaFix = new Number(val.nilai_kinerja.replace(",", "."));
-        return`
+        return `
             <tr>
                 <td style="${val.nama === "NTB" ? 'background:#3CFA84;font-weight: 700;font-size:n 1.3em' : ''}">${val.no}</td>
                 <td style="${val.nama === "NTB" ? 'background:#3CFA84;font-weight: 700;font-size: 1.3em' : ''}">${val.nama}</td>
@@ -91,7 +91,7 @@ function renderKinerja() {
         </table>
     </body>
     </html>`;
-    
+
     //render image
     nodeHtmlToImage({
         output: __dirname + '/../image/rekapkinerja.png',
@@ -100,12 +100,12 @@ function renderKinerja() {
 }
 
 function renderKinerjaKantah() {
-    table = dataKinerjaKantah.map((val) => {
+    let table = dataKinerjaKantah.map((val) => {
         var perencanaanFix = new Number(val.nilai_perencanaan.replace(',', '.')).toFixed(2);
         var kualitasFix = new Number(val.nilai_kualitas.replace(',', '.')).toFixed(2);
         var kuantitasFix = new Number(val.nilai_kuantitas.replace(',', '.')).toFixed(2);
         var kinerjaFix = new Number(val.nilai_kinerja.replace(',', '.')).toFixed(2);
-        return`
+        return `
             <tr>
                 <td>${val.no}</td>
                 <td>${val.nama}</td>
@@ -165,7 +165,7 @@ function renderKinerjaKantah() {
         </table>
     </body>
     </html>`;
-    
+
     //render image
     nodeHtmlToImage({
         output: __dirname + '/../image/rekapkinerja_kantah.png',
@@ -174,8 +174,8 @@ function renderKinerjaKantah() {
 }
 
 function renderEarlyWarning() {
-    table = earlyWarning.map((val) => {
-        return`
+    let table = earlyWarning.map((val) => {
+        return `
             <tr>
                 <td>${val.no}</td>
                 <td>${val.kantah}</td>
@@ -230,7 +230,7 @@ function renderEarlyWarning() {
         </table>
     </body>
     </html>`;
-    
+
     //render image
     nodeHtmlToImage({
         output: __dirname + '/../image/early_warning.png',
@@ -239,7 +239,18 @@ function renderEarlyWarning() {
 }
 
 function renderKuantitas() {
-    table = dataKuantitas.map(val => {
+    let data = dataKuantitas.map(val => {
+        let o = val;
+        o.sertifikat = dataKinerjaTahapan[dataKinerjaTahapan.findIndex(x => x.kantah == o.kantah)].sertifikat;
+        o.penyerahan = dataKinerjaTahapan[dataKinerjaTahapan.findIndex(x => x.kantah == o.kantah)].penyerahan;
+        return o;
+    });
+
+    let table = data.map(val => {
+        if(val.kantah == 'Total') {
+            return;
+        }
+
         var capaianPBT = new Number(val.capaianpbt);
         var capaianSHAT = new Number(val.capaianshat);
         var capaianK4 = new Number(val.capaiank4);
@@ -247,21 +258,43 @@ function renderKuantitas() {
         var pemetaanFix = ((val.pemetaan / val.targetpbt) * 100).toFixed(2);
         var puldadisFix = ((val.puldadis / val.targetshat) * 100).toFixed(2);
         var pemberkasanFix = ((val.pemberkasan / val.targetshat) * 100).toFixed(2);
-        return`
+        return `
             <tr>
                 <td>${val.kantah}</td>
                 <td style="background: #666666;color: #fff;text-align: center">${val.targetpbt}</td>
-                <td style="background: ${surveyFix > 80 ? '#00A805' : surveyFix > 60 ? '#30d507' : surveyFix > 40 ? '#AADB00' : surveyFix > 20 ? '#E0BD00' : '#FF2D37'};text-align: center">${surveyFix}%</td>
-                <td style="background: ${pemetaanFix > 80 ? '#00A805' : pemetaanFix > 60 ? '#30d507' : pemetaanFix > 40 ? '#AADB00' : pemetaanFix > 20 ? '#E0BD00' : '#FF2D37'};text-align: center">${pemetaanFix}%</td>
-                <td style="background: ${capaianPBT > 80 ? '#00A805' : capaianPBT > 60 ? '#30d507' : capaianPBT > 40 ? '#AADB00' : capaianPBT > 20 ? '#E0BD00' : '#FF2D37'};text-align: center">${capaianPBT}%</td>
+                <td style="background: ${surveyFix > 80 ? '#00A805' : surveyFix > 60 ? '#30d507' : surveyFix > 40 ? '#AADB00' : surveyFix > 20 ? '#E0BD00' : '#ff8585'};text-align: center">${surveyFix}%</td>
+                <td style="background: ${pemetaanFix > 80 ? '#00A805' : pemetaanFix > 60 ? '#30d507' : pemetaanFix > 40 ? '#AADB00' : pemetaanFix > 20 ? '#E0BD00' : '#ff8585'};text-align: center">${pemetaanFix}%</td>
+                <td style="background: ${capaianPBT > 80 ? '#00A805' : capaianPBT > 60 ? '#30d507' : capaianPBT > 40 ? '#AADB00' : capaianPBT > 20 ? '#E0BD00' : '#ff8585'};text-align: center">${capaianPBT}%</td>
                 <td style="background: #666666;color: #fff;text-align: center">${val.targetshat}</td>
-                <td style="background: ${puldadisFix > 80 ? '#00A805' : puldadisFix > 60 ? '#30d507' : puldadisFix > 40 ? '#AADB00' : puldadisFix > 20 ? '#E0BD00' : '#FF2D37'};text-align: center">${puldadisFix}%</td>
-                <td style="background: ${pemberkasanFix > 80 ? '#00A805' : pemberkasanFix > 60 ? '#30d507' : pemberkasanFix > 40 ? '#AADB00' : pemberkasanFix > 20 ? '#E0BD00' : '#FF2D37'};text-align: center">${pemberkasanFix}%</td>
-                <td style="background: ${capaianSHAT > 80 ? '#00A805' : capaianSHAT > 60 ? '#30d507' : capaianSHAT > 40 ? '#AADB00' : capaianSHAT > 20 ? '#E0BD00' : '#FF2D37'};text-align: center">${capaianSHAT}%</td>
+                <td style="background: ${puldadisFix > 80 ? '#00A805' : puldadisFix > 60 ? '#30d507' : puldadisFix > 40 ? '#AADB00' : puldadisFix > 20 ? '#E0BD00' : '#ff8585'};text-align: center">${puldadisFix}%</td>
+                <td style="background: ${pemberkasanFix > 80 ? '#00A805' : pemberkasanFix > 60 ? '#30d507' : pemberkasanFix > 40 ? '#AADB00' : pemberkasanFix > 20 ? '#E0BD00' : '#ff8585'};text-align: center">${pemberkasanFix}%</td>
+                <td style="background: ${capaianSHAT > 80 ? '#00A805' : capaianSHAT > 60 ? '#30d507' : capaianSHAT > 40 ? '#AADB00' : capaianSHAT > 20 ? '#E0BD00' : '#ff8585'};text-align: center">${capaianSHAT}%</td>
+                <td style="text-align: center">${val.sertifikat}</td>
+                <td style="text-align: center">${val.potensiK1}</td>
+                <td style="text-align: center">${val.K1}</td>
                 <td style="background: #666666;color: #fff;text-align: center">${val.targetk4}</td>
-                <td style="background: ${capaianK4 > 80 ? '#00A805' : capaianK4 > 60 ? '#30d507' : capaianK4 > 40 ? '#AADB00' : capaianK4 > 20 ? '#E0BD00' : '#FF2D37'};text-align: center">${capaianK4}%</td>
+                <td style="background: ${capaianK4 > 80 ? '#00A805' : capaianK4 > 60 ? '#30d507' : capaianK4 > 40 ? '#AADB00' : capaianK4 > 20 ? '#E0BD00' : '#ff8585'};text-align: center">${capaianK4}%</td>
             </tr>
     `}).toString().replaceAll(",", "");
+
+    let totalHtml = `
+    <tr>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">Total</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${data[data.length - 1].targetpbt}</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${((data[data.length - 1].survei / data[data.length - 1].targetpbt) * 100).toFixed(2) }%</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${(data[data.length - 1].pemetaan / data[data.length - 1].targetpbt * 100).toFixed(2)} %</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${new Number(data[data.length - 1].capaianpbt)} %</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${data[data.length - 1].targetshat}</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${(data[data.length - 1].puldadis / data[data.length - 1].targetshat * 100).toFixed(2)} %</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${(data[data.length - 1].pemberkasan / data[data.length - 1].targetshat * 100).toFixed(2)} %</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${new Number(data[data.length - 1].capaianshat)} %</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${data[data.length - 1].sertifikat}</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${data[data.length - 1].potensiK1}</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${data[data.length - 1].K1}</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${data[data.length - 1].targetk4}</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${new Number(data[data.length - 1].capaiank4)} %</td>
+    </tr>
+    `
 
     var html = `
     <html>
@@ -271,6 +304,8 @@ function renderKuantitas() {
                 font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
                 margin: 0;
                 padding: 0;
+                width: 1366px;
+                height: 820px;
                 font-size: 12px;
             }
 
@@ -284,7 +319,7 @@ function renderKuantitas() {
             }
 
             table, th, td {
-                border: 1px solid #2c2c2c;
+                border: 0px solid #dedede;
             }
 
             th, td {
@@ -311,16 +346,19 @@ function renderKuantitas() {
                 <th>Capaian Puldadis</th>
                 <th>Capaian Pemberkasan</th>
                 <th>Capaian SHAT</th>
+                <th>Sertifikat</th>
+                <th>Potensi K1</th>
+                <th>K1</th>
                 <th>Target K4</th>
                 <th>Capaian K4</th>
             </thead>
             <tbody id="table-body">` +
-                table
-            + `</tbody>
+        table
+        + totalHtml + `</tbody>
         </table>
     </body>
     </html>`;
-    
+
     //render image
     nodeHtmlToImage({
         output: __dirname + '/../image/rekap_kuantitas.png',
@@ -329,7 +367,7 @@ function renderKuantitas() {
 }
 
 async function renderDesaNDL(kantah) {
-    table = dataDetailDesa.filter(desa => desa.kantah === kantah).map(val => {
+    let table = dataDetailDesa.filter(desa => desa.kantah === kantah).map(val => {
         var batasMinimal = new Number(val.luas * 0.99995);
         var batasMaksimal = new Number(val.luas * 1.00005);
         var syaratLuas = val.luasPersil > batasMinimal && val.luasPersil < batasMaksimal ? 'Memenuhi' : 'Tidak Memenuhi';
@@ -338,7 +376,7 @@ async function renderDesaNDL(kantah) {
         var maksimalLuasKW = val.luasPersil * 0.035;
         var syaratLuasKW = val.luasKW456 <= maksimalLuasKW ? 'Memenuhi' : 'Tidak Memenuhi';
         var ndl = val.NDL;
-        return`
+        return `
             <tr>
                 <td>${val.no}</td>
                 <td>${val.desa}</td>
@@ -417,10 +455,10 @@ async function renderDesaNDL(kantah) {
         </table>
     </body>
     </html>`;
-    
+
     //render image
     nodeHtmlToImage({
-        output: __dirname + '/../image/potensidesalengkap/'+ kantah.trim() +'.png',
+        output: __dirname + '/../image/potensidesalengkap/' + kantah.trim() + '.png',
         html: html
     }).then(() => console.log('Success'));
 }

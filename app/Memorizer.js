@@ -12,9 +12,20 @@ async function main() {
     });
 
     databases.forEach(data => {
-       db.insertInto(data.name, JSON.stringify(data.data), timer.today.toISOString());
+       db.insertInto(data.name, JSON.stringify(data.data), new timer().today().toISOString());
        console.log(data.name + " saved")
     });
 }
 
-main();
+async function saveDetailDesa() {
+    let file = fs.readFileSync(path.join(__dirname, "../data/detaildesalengkap.json"));
+    let data = JSON.parse(file);
+
+    db.insertInto("detaildesalengkap", JSON.stringify(data), new timer().today().toISOString());
+    console.log("detaildesalengkap saved")
+}
+
+module.exports = {
+    init: main,
+    saveDetailDesa
+}

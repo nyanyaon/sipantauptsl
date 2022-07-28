@@ -1,22 +1,12 @@
 const db = require('./Config');
 
-function getAll(tablename) { 
+function getAll(tablename, callback) { 
+    var data = [];
+
     db.all(`SELECT * FROM ${tablename}`, (err, row) => {
-        if(err) console.log(err)
-        return row;
+        if(err) console.log(err);
+        callback(row);
     });
-
-    db.close();
-}
-
-function insertDesaLengkap(data) {
-    db.serialize(() => {
-        const stmt = db.prepare("INSERT INTO desalengkap VALUES (?, ?, ?)");
-        stmt.run([null, data, time]);
-        stmt.finalize();
-    });
-
-    db.close();
 }
 
 function insertInto(name, data, time) {
@@ -24,6 +14,20 @@ function insertInto(name, data, time) {
         const stmt = db.prepare(`INSERT INTO ${name} VALUES (?, ?)`);
         stmt.run([data, time]);
         stmt.finalize();
+    });
+}
+
+function insertDaftarNDL(desa, ndlhilang) {
+    db.serialize(() => {
+        const stmt = db.prepare(`INSERT INTO daftarndl VALUES (?, ?)`);
+        stmt.run([desa, ndlhilang]);
+        stmt.finalize();
+    });
+}
+
+function updateDaftarNDL(desa, ndlhilang) {
+    db.serialize(() => {
+        db.run(`UPDATE daftarndl SET ndlhilang = ${ndlhilang} WHERE desa = ?`, desa);
     });
 }
 
@@ -54,9 +58,12 @@ function closeConn() {
 
 
 module.exports = {
+    conn: db,
     closeConn,
     createTable,
     deleteTable,
     insertInto,
-    getAll
+    getAll,
+    insertDaftarNDL,
+    updateDaftarNDL
 }
