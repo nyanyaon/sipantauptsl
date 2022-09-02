@@ -10,44 +10,45 @@ async function startPuppeter(headless = false) {
     const page = await browser.newPage();
 
     await page.goto("https://kkp2.atrbpn.go.id/");
-    await page.type("input#lg_username", "198408222009031003");
-    await page.type("input#inputPassword", "ABGKR34T");
+    await page.type("input#lg_username", "198211062006041005");
+    await page.type("input#inputPassword", "@diCk82@");
     await page.click("#btn-login");
 
-    page.waitForTimeout(5000);
+    await page.waitForTimeout(5000);
 
     return browser.wsEndpoint();
 }
 
 async function getAll() {
     var databases = [];
-    var browserwsEndPoint = await startPuppeter(true);
+    var browserwsEndPoint = await startPuppeter(false);
     const browser = await puppeteer.connect({
         browserWSEndpoint: browserwsEndPoint,
-
     });
 
     //Read Files
-    fs.readdir(path.join(__dirname, "data"),(err, files) => {
-        if(err) {
+    fs.readdir(path.join(__dirname, "data"), (err, files) => {
+        if (err) {
             console.log(err.message);
             return;
         }
 
         files.map((value) => {
-            databases.push(require('./data/'+value));
+            databases.push(require('./data/' + value));
         });
 
         var countFix = 0;
 
         databases.map(async (data, index) => {
-            await data.main(browser).then((data) => {
-                console.log(`Fetched`)
-                countFix+=data;
+            await data.main(browser).then((code) => {
+                if (code == 1) {
+                    console.log(`Fetched`)
+                    countFix += code;
+                }
             });
 
-            if(countFix === 7) {
-                browser.close();
+            if (countFix === 7) {
+                await browser.close();
                 return 0;
             }
         });
@@ -55,7 +56,7 @@ async function getAll() {
 }
 
 async function getDetailDesaLengkap() {
-    var browserwsEndPoint = await startPuppeter(true);
+    var browserwsEndPoint = await startPuppeter(false);
     const browser = await puppeteer.connect({
         browserWSEndpoint: browserwsEndPoint,
     });

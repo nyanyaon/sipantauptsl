@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+const cron = require('node-cron');
+const { Worker, isMainThread, parentPort, workerData } = require('node:worker_threads');
 
 async function main() {
    const cr = await puppeteer.launch({
@@ -7,21 +9,25 @@ async function main() {
 
    const page = await cr.newPage();
 
-   await page.goto("http://www.msftconnecttest.com/redirect");
+   try {
 
-   let isLogin = await page.$("#wifiidLogin");
+      await page.goto("http://www.msftconnecttest.com/redirect", { timeout: 100000 });
 
-   if(isLogin === null) {
-      console.log("Koneksi Reset");
+
+      await page.waitForSelector("#wifiidLogin");
+      
+      await page.waitForSelector("#wifiidLogin > div.content-main.form > button");
       let btn = await page.$("#wifiidLogin > div.content-main.form > button");
       await btn.click();
-      await cr.close();
-      return;
-   } 
+      console.log("Logged In");
 
-   console.log("Logged In");
+   } catch (err) {
+      console.log(err);
+   }
+
    await cr.close();
-   return;
 }
 
-module.exports = main;
+cron.schedule('* * * * *', () => {
+   main();
+});

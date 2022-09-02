@@ -2,10 +2,8 @@ require('dotenv').config();
 const puppeteer = require('puppeteer');
 const writer = require('./../Writer');
 
-
-const data = [];
-
 async function main(browser, headless = false) {
+    const data = [];
     const page = await browser.newPage();
 
     await page.goto("https://ptsl.atrbpn.go.id/Progress");
@@ -34,10 +32,8 @@ async function main(browser, headless = false) {
 
         data.push(kantah);
     }
-
-    writer.toJson(data, 'rekapkuantitas');
-
     await page.close();
+    writer.toJson(data, 'rekapkuantitas');
 
     return 1;
 }

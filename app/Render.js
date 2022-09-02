@@ -1,9 +1,5 @@
-const dataKinerjaProv = require('../data/peringkat.json');
-const dataKinerjaKantah = require('../data/kinerjakantah.json');
-const dataKinerjaTahapan = require('../data/rekaptahapan.json');
-const dataKuantitas = require('../data/rekapkuantitas.json');
-const earlyWarning = require('../data/earlywarning.json');
-const dataDetailDesa = require('../data/detaildesalengkap.json');
+const fs = require('fs');
+const path = require('path');
 const nodeHtmlToImage = require('node-html-to-image');
 
 const KANTAH = [
@@ -19,7 +15,8 @@ const KANTAH = [
     "Kab. Lombok Utara"
 ];
 
-function renderKinerja() {
+async function renderKinerja() {
+    const dataKinerjaProv = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/peringkat.json')));
     let pos = dataKinerjaProv.findIndex((val) => val.nama === "NTB");
     let table = dataKinerjaProv.map((val, index) => {
         if (index < pos - 5 || index > pos + 5) {
@@ -93,13 +90,14 @@ function renderKinerja() {
     </html>`;
 
     //render image
-    nodeHtmlToImage({
+    await nodeHtmlToImage({
         output: __dirname + '/../image/rekapkinerja.png',
         html: html
-    }).then(() => console.log('Success'));
+    });
 }
 
-function renderKinerjaKantah() {
+async function renderKinerjaKantah() {
+    const dataKinerjaKantah = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/kinerjakantah.json')));
     let table = dataKinerjaKantah.map((val) => {
         var perencanaanFix = new Number(val.nilai_perencanaan.replace(',', '.')).toFixed(2);
         var kualitasFix = new Number(val.nilai_kualitas.replace(',', '.')).toFixed(2);
@@ -167,14 +165,15 @@ function renderKinerjaKantah() {
     </html>`;
 
     //render image
-    nodeHtmlToImage({
+    await nodeHtmlToImage({
         output: __dirname + '/../image/rekapkinerja_kantah.png',
         html: html
-    }).then(() => console.log('Success'));
+    });
 }
 
-function renderEarlyWarning() {
-    let table = earlyWarning.map((val) => {
+async function renderEarlyWarning() {
+    const dataEarlyWarning = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/earlywarning.json')));
+    let table = dataEarlyWarning.map((val) => {
         return `
             <tr>
                 <td>${val.no}</td>
@@ -232,13 +231,15 @@ function renderEarlyWarning() {
     </html>`;
 
     //render image
-    nodeHtmlToImage({
+    await nodeHtmlToImage({
         output: __dirname + '/../image/early_warning.png',
         html: html
-    }).then(() => console.log('Success'));
+    });
 }
 
-function renderKuantitas() {
+async function renderKuantitas() {
+    const dataKinerjaTahapan = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/rekaptahapan.json')));
+    const dataKuantitas = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/rekapkuantitas.json')));
     let data = dataKuantitas.map(val => {
         let o = val;
         o.sertifikat = dataKinerjaTahapan[dataKinerjaTahapan.findIndex(x => x.kantah == o.kantah)].sertifikat;
@@ -360,13 +361,14 @@ function renderKuantitas() {
     </html>`;
 
     //render image
-    nodeHtmlToImage({
+    await nodeHtmlToImage({
         output: __dirname + '/../image/rekap_kuantitas.png',
         html: html
-    }).then(() => console.log('Success'));
+    });
 }
 
 async function renderDesaNDL(kantah) {
+    const dataDetailDesa = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/detaildesalengkap.json')));
     let table = dataDetailDesa.filter(desa => desa.kantah === kantah).map(val => {
         var batasMinimal = new Number(val.luas * 0.99995);
         var batasMaksimal = new Number(val.luas * 1.00005);
@@ -457,10 +459,10 @@ async function renderDesaNDL(kantah) {
     </html>`;
 
     //render image
-    nodeHtmlToImage({
+    await nodeHtmlToImage({
         output: __dirname + '/../image/potensidesalengkap/' + kantah.trim() + '.png',
         html: html
-    }).then(() => console.log('Success'));
+    });
 }
 
 

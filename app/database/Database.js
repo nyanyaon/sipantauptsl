@@ -25,6 +25,14 @@ function insertDaftarNDL(desa, ndlhilang) {
     });
 }
 
+function insertUsers(nomer, alias) {
+    db.serialize(() => {
+        const stmt = db.prepare(`INSERT INTO users VALUES (?, ?)`);
+        stmt.run([nomer, alias]);
+        stmt.finalize();
+    });
+}
+
 function updateDaftarNDL(desa, ndlhilang) {
     db.serialize(() => {
         db.run(`UPDATE daftarndl SET ndlhilang = ${ndlhilang} WHERE desa = ?`, desa);
@@ -65,5 +73,6 @@ module.exports = {
     insertInto,
     getAll,
     insertDaftarNDL,
-    updateDaftarNDL
+    updateDaftarNDL,
+    insertUsers
 }
