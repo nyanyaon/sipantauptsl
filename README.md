@@ -1,12 +1,12 @@
 # SIPANTAU PTSL
 Sistem Pemantauan PTSL
-##About
+## About
 Sistem Pemantauan PTSL adalah Bot Whatsapp untuk memantau perkembangan Program PTSL di wilayah Nusa Tenggara Barat
 
-##Author
+## Author
 Kantor Wilayah Badan Pertanahan Nasional Provinsi Nusa Tenggara Barat
 
-##Contributor
+## Contributor
 - Slameto
 - Catur Bowo Susbianto
 - Pandu Kuncoro Admaja
@@ -14,7 +14,7 @@ Kantor Wilayah Badan Pertanahan Nasional Provinsi Nusa Tenggara Barat
 - Taufik Adi Permana
 - Ahmad Kholilurrahman
 
-##Library
+## Library
 - NodeJS
 - Whatsapp-web.js
 - nodeHtmlToImage
