@@ -1,4 +1,4 @@
-const getter = require('./app/Getter');
+const { Getter } = require('./app/Getter');
 const waBot = require('./app/bot/WA');
 const render = require('./app/Render');
 const memorizer = require('./app/Memorizer');
@@ -16,10 +16,6 @@ console.log("SPAN PTSL Running...");
 console.log("Wait for cron")
 
 waBot.client.initialize();
-
-process.on('exit', (code) => {
-    waBot.client.sendMessage('6287755052654@c.us', 'The bot has stopped with error code ' + code);
-});
 
 cron.schedule('30 7 * * *', async () => {
     await getter.getAll();
@@ -58,49 +54,54 @@ cron.schedule('30 22 * * *', async () => {
 });
 
 waBot.client.on("message", async (msg) => {
-    if (msg.body === '!pantau' && waBot.LIST_CONTACT.find(val => val === msg.from)) {
-        waBot.client.sendMessage(msg.from, 'Tunggu sebentar ya 🙏, kami sedang mengambil data terbaru')
+    // if (msg.body === '!pantau' && waBot.LIST_CONTACT.find(val => val === msg.from)) {
+    //     waBot.client.sendMessage(msg.from, 'Tunggu sebentar ya 🙏, kami sedang mengambil data terbaru')
 
-        await getter.getDetailDesaLengkap();
-        ndllocker.getDesaNDLJSON(msg.from);
+    //     await getter.getDetailDesaLengkap();
+    //     ndllocker.getDesaNDLJSON(msg.from);
+    // }
+
+    // if (msg.body === '!report' && waBot.LIST_CONTACT.find(val => val === msg.from)) {
+    //     await render.renderEarlyWarning();
+    //     await render.renderKinerja();
+    //     await render.renderKinerjaKantah();
+    //     await render.renderKuantitas();
+    //     await report.sendReport(msg.from);
+    // }
+    
+    if (msg.body === '!login' && waBot.LIST_CONTACT.find(val => val === msg.from)) {
+        const getter = new Getter();
+        getter.login(msg.from);
     }
 
-    if (msg.body === '!report' && waBot.LIST_CONTACT.find(val => val === msg.from)) {
-        await render.renderEarlyWarning();
-        await render.renderKinerja();
-        await render.renderKinerjaKantah();
-        await render.renderKuantitas();
-        await report.sendReport(msg.from);
-    }
+    // if (msg.body.toLowerCase() === "!detaildesa") {
+    //     render.KANTAH.forEach(val => {
+    //         render.renderDesaNDL(val);
+    //     });
+    //     let photos = fs.readdirSync(path.join(__dirname, 'image/potensidesalengkap'), { withFileTypes: true });
+    //     photos.forEach(file => {
+    //         waBot.client.sendMessage(msg.from, MessageMedia.fromFilePath(path.join(__dirname, 'image/potensidesalengkap/' + file.name)));
+    //     });
+    // }
 
-    if (msg.body.toLowerCase() === "!detaildesa") {
-        render.KANTAH.forEach(val => {
-            render.renderDesaNDL(val);
-        });
-        let photos = fs.readdirSync(path.join(__dirname, 'image/potensidesalengkap'), { withFileTypes: true });
-        photos.forEach(file => {
-            waBot.client.sendMessage(msg.from, MessageMedia.fromFilePath(path.join(__dirname, 'image/potensidesalengkap/' + file.name)));
-        });
-    }
+    // if (msg.body === '!update') {
+    //     waBot.client.sendMessage(msg.from, 'Tunggu sebentar ya 🙏, kami sedang mengambil data terbaru')
+    //     await getter.getAll();
+    //     waBot.client.sendMessage(msg.from, 'Sudah')
+    // }
 
-    if (msg.body === '!update') {
-        waBot.client.sendMessage(msg.from, 'Tunggu sebentar ya 🙏, kami sedang mengambil data terbaru')
-        await getter.getAll();
-        waBot.client.sendMessage(msg.from, 'Sudah')
-    }
+    // if (msg.body === '!sendtoall') {
+    //     await render.renderEarlyWarning();
+    //     await render.renderKinerja();
+    //     await render.renderKinerjaKantah();
+    //     await render.renderKuantitas();
+    //     waBot.LIST_CONTACT.forEach(async contact => {
+    //         await report.sendReport(contact);
+    //     })
+    // }
 
-    if (msg.body === '!sendtoall') {
-        await render.renderEarlyWarning();
-        await render.renderKinerja();
-        await render.renderKinerjaKantah();
-        await render.renderKuantitas();
-        waBot.LIST_CONTACT.forEach(async contact => {
-            await report.sendReport(contact);
-        })
-    }
-
-    if (msg.body === '!test') {
-        await report.sendReport("6285640121314@c.us");
-    }
+    // if (msg.body === '!test') {
+    //     await report.sendReport("6285640121314@c.us");
+    // }
 });
 
