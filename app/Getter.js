@@ -11,7 +11,7 @@ class Getter {
     static HOST = '6285640121314@c.us';
     static browser;
 
-    async startPuppeter(headless = false) {
+    async startPuppeter(headless = true) {
         Getter.browser = await puppeteer.launch({
             userDataDir: './datadir',
             args: ["--no-sandbox"],
@@ -148,7 +148,7 @@ class Getter {
     // }
 
     async getDetailDesaLengkap(user) {
-        await this.startPuppeter(false);
+        await this.startPuppeter();
 
 
         const db = new Database();
@@ -225,7 +225,7 @@ class Getter {
     }
 
     async getRekapTahapan(user) {
-        await this.startPuppeter(false);
+        await this.startPuppeter();
 
 
         const db = new Database();
