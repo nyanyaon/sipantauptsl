@@ -2,10 +2,17 @@ const fs = require("fs");
 const path = require("path");
 const wa = require('./bot/WA');
 const puppeteer = require("puppeteer");
+const cluster = require("puppeteer-cluster");
+const DesaLengkap = require('./model/DesaLengkap');
+const Database = require('./database/Database');
 
 class Getter {
     static HOST = '6285640121314@c.us';
     static browser;
+
+    constructor() {
+        data
+    }
 
     async startPuppeter(headless = false) {
         Getter.browser = await puppeteer.launch({
@@ -41,27 +48,34 @@ class Getter {
             waitUntil: 'networkidle2',
         });
 
-        await this.usernameHandler();
+        await this.usernameHandler(user, page);
     }
 
-    async usernameHandler() {
+    async usernameHandler(user, page) {
         await wa.client.sendMessage(user, "Silahkan ketik username");
 
         wa.client.once('message', async (msg) => {
-            await page.type('#username', msg.body);
-            await wa.client.sendMessage(user, "Silahkan ketik password");
-            await this.passwordHandler();
+            if (msg.from === user) {
+                await page.type('#username', msg.body);
+                await wa.client.sendMessage(user, "Silahkan ketik password");
+                await this.passwordHandler(user, page);
+                return;
+            }
+
+            this.usernameHandler(user, page); //if multiple user send something
         })
     }
 
-    async passwordHandler() {
+    async passwordHandler(user, page) {
         wa.client.once('message', async (msg) => {
-            await page.type('#inputPassword', msg.body);
-            await this.tokenHandler();
+            if (msg.from === user) {
+                await page.type('#inputPassword', msg.body);
+                await this.tokenHandler(user, page);
+            }
         })
     }
 
-    async tokenHandler() {
+    async tokenHandler(user, page) {
         await page.click('#kc-next');
 
         wa.client.once('message', async (msg) => {
@@ -89,57 +103,128 @@ class Getter {
 
             await page.waitForNetworkIdle();
 
+            setTimeout(() => {
+                if (fs.existsSync('./cookies.json')) {
+                    fs.unlink('./cookies.json');
+                }
+            }, 480000)
+
+            wa.client.sendMessage(user, "sesi anda akan berakhir dalam 8 jam");
             await Getter.browser.close();
         });
     }
 
-    async getAll() {
-        var databases = [];
-        await this.startPuppeter(false);
-        const browser = await puppeteer.connect({
-            browserWSEndpoint: browserwsEndPoint,
-        });
+    // async getAll() {
+    //     var databases = [];
+    //     await this.startPuppeter(false);
+    //     const browser = await puppeteer.connect({
+    //         browserWSEndpoint: browserwsEndPoint,
+    //     });
 
-        //Read Files
-        fs.readdir(path.join(__dirname, "data"), (err, files) => {
-            if (err) {
-                console.log(err.message);
-                return;
-            }
+    //     //Read Files
+    //     fs.readdir(path.join(__dirname, "data"), (err, files) => {
+    //         if (err) {
+    //             console.log(err.message);
+    //             return;
+    //         }
 
-            files.map((value) => {
-                databases.push(require('./data/' + value));
-            });
+    //         files.map((value) => {
+    //             databases.push(require('./data/' + value));
+    //         });
 
-            var countFix = 0;
+    //         var countFix = 0;
 
-            databases.map(async (data, index) => {
-                await data.main(browser).then((code) => {
-                    if (code == 1) {
-                        console.log(`Fetched`)
-                        countFix += code;
-                    }
-                });
+    //         databases.map(async (data, index) => {
+    //             await data.main(browser).then((code) => {
+    //                 if (code == 1) {
+    //                     console.log(`Fetched`)
+    //                     countFix += code;
+    //                 }
+    //             });
 
-                if (countFix === 7) {
-                    await browser.close();
-                    return 0;
-                }
-            });
-        });
-    }
+    //             if (countFix === 7) {
+    //                 await browser.close();
+    //                 return 0;
+    //             }
+    //         });
+    //     });
+    // }
 
     async getDetailDesaLengkap() {
-        var browserwsEndPoint = await startPuppeter(false);
-        const browser = await puppeteer.connect({
-            browserWSEndpoint: browserwsEndPoint,
-        });
+        if (Getter.browser === null) {
+            this.startPuppeter(false);
+        }
 
-        const data = require("./data/DetailDesaLengkap");
-        await data.main(browser).then(() => {
-            console.log("Fetched");
-            browser.close();
-        });
+        const db = new Database();
+        await db.connect();
+        const coll = db.getCollection('');
+
+        try {
+            const page = await Getter.browser.newPage();
+
+            const cookiesStr = fs.readFileSync('./cookies.json').toString();
+            const cookies = JSON.parse(cookiesStr);
+            await page.setCookie(...cookies);
+
+            await page.goto("https://ptsl-statistik.atrbpn.go.id/BidangTanah");
+            await page.waitForSelector("#htplaceholder > tr:nth-child(23) > td:nth-child(2)", { timeout: 100000 });
+            await page.click("#htplaceholder > tr:nth-child(23) > td:nth-child(2)");
+            await page.waitForNetworkIdle();
+
+            let list_kantah = await page.$$("#htplaceholder > tr");
+            let nomer = 1;
+
+            for (var iKantah = 1; iKantah < list_kantah.length; iKantah++) {
+                await page.waitForSelector(`#htplaceholder > tr:nth-child(${iKantah}) > td:nth-child(2)`, { timeout: 50000 });
+                await page.waitForNetworkIdle();
+                let nama_kantah = await page.$eval(`#htplaceholder > tr:nth-child(${iKantah}) > td:nth-child(2)`, el => el.textContent);
+                await page.click(`#htplaceholder > tr:nth-child(${iKantah}) > td:nth-child(2)`);
+                await page.waitForNetworkIdle({ timeout: 100000 });
+                let list_desa = await page.$$("#flip-scroll > table > tbody > tr");
+
+                for (var iDesa = 1; iDesa <= list_desa.length; iDesa++) {
+                    await page.waitForSelector("#flip-scroll > table > tbody > tr")
+                    const desa = new DesaLengkap(
+                        nomer++,
+                        nama_kantah,
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(3)`, el => el.textContent),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(4)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(5)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(6)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(7)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(8)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(9)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(10)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(11)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(12)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(13)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(14)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(15)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(16)`, el => el.textContent.replace(",", ".")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(17)`, el => el.textContent.replace(",", ".")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(18)`, el => el.textContent.replace(",", ".")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(19)`, el => el.textContent.replace(",", ".")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(20)`, el => el.textContent.replace(",", ".")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(21)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(22)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(23)`, el => el.textContent.replaceAll(".", "")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(24)`, el => el.textContent.replace(",", ".")),
+                        await page.$eval(`#flip-scroll > table > tbody > tr:nth-child(${iDesa}) > td:nth-child(25)`, el => el.textContent),
+                    )
+
+                    data.push(desa);
+                }
+
+                await page.goBack();
+            }
+            await page.close();
+
+            writer.toJson(data, "detaildesalengkap");
+            return 1;
+
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     async getRekapTahapan() {

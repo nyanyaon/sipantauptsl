@@ -1,78 +1,21 @@
-const db = require('./Config');
+import * as mongoDB from 'mongodb';
 
-function getAll(tablename, callback) { 
-    var data = [];
+class Database {
+    _dbname = "spanptsl";
 
-    db.all(`SELECT * FROM ${tablename}`, (err, row) => {
-        if(err) console.log(err);
-        callback(row);
-    });
+    async connect() {
+        const client = new mongoDB.MongoClient("mongodb://root:12345@nyanyaon.my.id/");
+
+        await client.connect();
+
+        const db = client.db(this._dbname);
+
+        this._db = db;
+    }
+
+    getCollection(name) {
+        return this._db.collection(name);
+    }
 }
 
-function insertInto(name, data, time) {
-    db.serialize(() => {
-        const stmt = db.prepare(`INSERT INTO ${name} VALUES (?, ?)`);
-        stmt.run([data, time]);
-        stmt.finalize();
-    });
-}
-
-function insertDaftarNDL(desa, ndlhilang) {
-    db.serialize(() => {
-        const stmt = db.prepare(`INSERT INTO daftarndl VALUES (?, ?)`);
-        stmt.run([desa, ndlhilang]);
-        stmt.finalize();
-    });
-}
-
-function insertUsers(nomer, alias) {
-    db.serialize(() => {
-        const stmt = db.prepare(`INSERT INTO users VALUES (?, ?)`);
-        stmt.run([nomer, alias]);
-        stmt.finalize();
-    });
-}
-
-function updateDaftarNDL(desa, ndlhilang) {
-    db.serialize(() => {
-        db.run(`UPDATE daftarndl SET ndlhilang = ${ndlhilang} WHERE desa = ?`, desa);
-    });
-}
-
-function createTable(tablename) {
-    db.serialize(() => {
-        db.run(`CREATE TABLE IF NOT EXISTS ${tablename} (
-            data TEXT,
-            time TEXT
-        )`);
-        
-        console.log("Success create table " + tablename);
-    });
-}
-
-function deleteTable(tablename) {
-    db.serialize(() => {
-        db.run(`DROP TABLE IF EXISTS ${tablename}`);
-        
-        console.log("Success delete table " + tablename);
-    });
-
-    db.close();
-}
-
-function closeConn() {
-    db.close();
-}
-
-
-module.exports = {
-    conn: db,
-    closeConn,
-    createTable,
-    deleteTable,
-    insertInto,
-    getAll,
-    insertDaftarNDL,
-    updateDaftarNDL,
-    insertUsers
-}
+module.exports = Database;
