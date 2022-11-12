@@ -55,6 +55,7 @@ class RekapKuantitas {
         this.capaianpbt = capaianpbt;
         this.capaianshat = capaianshat;
         this.capaiank4 = capaiank4;
+        this.date = new Date();
     }
 }
 

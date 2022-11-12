@@ -51,6 +51,7 @@ class DesaLengkap {
         this.jumlahpersildeliniasi = jumlahpersildeliniasi;
         this.persenpersildeliniasi = persenpersildeliniasi;
         this.deklarasi = deklarasi;
+        this.date = new Date();
     }
 }
 

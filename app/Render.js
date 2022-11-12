@@ -96,6 +96,375 @@ async function renderKinerja() {
     });
 }
 
+async function renderRealisasiCapaianPTSL(data) {
+    let table = data.sort((a, b) => a.no - b.no).map((val, index) => {
+        return `
+            <tr>
+            <td>${val.no}</td>
+            <td>${val.wilayah}</td>
+            <td>${val.targetpbt}</td>
+            <td>${val.targetshat}</td>
+            <td>${val.targetk4}</td>
+            <td>${val.survei}</td>
+            <td>${val.pemetaan}</td>
+            <td>${val.puldadis}</td>
+            <td>${val.pemberkasan}</td>
+            <td>${val.potensik1}</td>
+            <td>${val.k1}</td>
+            <td>${val.k2}</td>
+            <td>${val.k31}</td>
+            <td>${val.k32}</td>
+            <td>${val.k33}</td>
+            <td>${val.k34}</td>
+            <td>${val.k4}</td>
+            <td>${val.k42}</td>
+            <td>${val.kw456}</td>
+            <td>${val.siapdiserahkan}</td>
+            <td>${val.diserahkan}</td>
+            <td>${val.k1pbtsebelumnya}</td>
+            <td>${val.capaianpbt}</td>
+            <td>${val.capaianshat}</td>
+            <td>${val.capaiank4}</td>
+            </tr>
+    `}).toString().replaceAll(",", "");
+
+    var html = `<html>
+    <head>
+        <style>
+            body {
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                margin: 0;
+                padding: 0;
+                font-size: 12px;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            table, th, td {
+                border: 1px solid #2c2c2c;
+            }
+
+            th, td {
+                padding: 0.5em;
+            }
+
+            h1 {
+                text-align: center;
+            }
+
+            th {
+                background: #4d2f00;
+                font-weight: 700;
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Realisasi Capaian Kinerja PTSL</h1>
+        <table>
+            <thead>
+                <th>No.</th>
+                <th>Wilayah</th>
+                <th>Target PBT</th>
+                <th>Target SHAT</th>
+                <th>Target K4</th>
+                <th>Survei</th>
+                <th>Pemetaan</th>
+                <th>Puldadis</th>
+                <th>Pemberkasan *</th>
+                <th>Potensi K1</th>
+                <th>K1</th>
+                <th>K2</th>
+                <th>K3.1 *</th>
+                <th>K3.2 *</th>
+                <th>K3.3 *</th>
+                <th>K3.4</th>
+                <th>K4</th>
+                <th>K4.2</th>
+                <th>KW4,5,6</th>
+                <th>Siap Diserahkan</th>
+                <th>Diserahkan</th>
+                <th>K1 PBT Sebelumnya</th>
+                <th>% Capaian PBT</th>
+                <th>% Capaian SHAT</th>
+                <th>% Capaian K4</th>
+            </thead>
+            <tbody id="table-body">
+                ${table}
+            </tbody>
+        </table>
+    </body>
+    </html>`;
+
+    //render image
+    await nodeHtmlToImage({
+        output: __dirname + '/../image/realisasicapaianptsl.png',
+        html: html,
+        puppeteerArgs: {
+            defaultViewport: {
+                width: 2100,
+                height: 720,
+            }
+        }
+    });
+
+    console.log("success");
+}
+
+async function renderPuldadis(data) {
+    let table = data.sort((a, b) => a.no - b.no).map((val, index) => {
+        return `
+            <tr>
+            <td>${val.no}</td>
+            <td>${val.wilayah}</td>
+            <td>${val.targetpbt}</td>
+            <td>${val.targetshat}</td>
+            <td>${val.targetk4}</td>
+            <td>${val.puldadis}</td>
+            <td>${new Number(val.targetshat - val.puldadis)}</td>
+            <td>${(new Number(val.targetshat - val.puldadis) / 20).toFixed(0)}</td>
+            </tr>
+    `}).toString().replaceAll(",", "");
+
+    var html = `<html>
+    <head>
+        <style>
+            body {
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                margin: 0;
+                padding: 0;
+                font-size: 12px;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            table, th, td {
+                border: 1px solid #2c2c2c;
+            }
+
+            th, td {
+                padding: 0.5em;
+            }
+
+            h1 {
+                text-align: center;
+            }
+
+            th {
+                background: #4d2f00;
+                font-weight: 700;
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Puldadis</h1>
+        <table>
+            <thead>
+            <th>No</th>
+            <th>Wilayah</th>
+            <th>Target PBT</th>
+            <th>Target SHAT</th>
+            <th>Target K4</th>
+            <th>Puldadis</th>
+            <th>Beban Puldadis</th>
+            <th>Peyelesaian Target di akhir bulan November (rata-rata pengumpulan per hari)</th>          
+            </thead>
+            <tbody id="table-body">
+                ${table}
+            </tbody>
+        </table>
+    </body>
+    </html>`;
+
+    //render image
+    await nodeHtmlToImage({
+        output: __dirname + '/../image/rekap_puldadis.png',
+        html: html,
+        puppeteerArgs: {
+            defaultViewport: {
+                width: 1280,
+                height: 720,
+            }
+        }
+    });
+
+    console.log("success");
+}
+
+async function renderPemberkasan(data) {
+    let table = data.sort((a, b) => a.no - b.no).map((val, index) => {
+        return `
+            <tr>
+            <td>${val.no}</td>
+            <td>${val.wilayah}</td>
+            <td>${val.targetpbt}</td>
+            <td>${val.targetshat}</td>
+            <td>${val.targetk4}</td>
+            <td>${val.pemberkasan}</td>
+            <td>${(new Number(val.pemberkasan) / 20).toFixed(0)}</td>
+            </tr>
+    `}).toString().replaceAll(",", "");
+
+    var html = `<html>
+    <head>
+        <style>
+            body {
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                margin: 0;
+                padding: 0;
+                font-size: 12px;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            table, th, td {
+                border: 1px solid #2c2c2c;
+            }
+
+            th, td {
+                padding: 0.5em;
+            }
+
+            h1 {
+                text-align: center;
+            }
+
+            th {
+                background: #4d2f00;
+                font-weight: 700;
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Pemberkasan</h1>
+        <table>
+            <thead>
+                <th>No</th>
+                <th>Wilayah</th>
+                <th>Target PBT</th>
+                <th>Target SHAT</th>
+                <th>Target K4</th>
+                <th>Pemberkasan * per tanggal ${data[0].date.toLocaleDateString()}</th>
+                <th>Rata-rata pengumpulan per hari</th>      
+            </thead>
+            <tbody id="table-body">
+                ${table}
+            </tbody>
+        </table>
+    </body>
+    </html>`;
+
+    //render image
+    await nodeHtmlToImage({
+        output: __dirname + '/../image/rekap_pemberkasan.png',
+        html: html,
+        puppeteerArgs: {
+            defaultViewport: {
+                width: 1280,
+                height: 720,
+            }
+        }
+    });
+
+    console.log("success");
+}
+
+async function renderPotensiK1(data) {
+    let table = data.sort((a, b) => a.no - b.no).map((val, index) => {
+        return `
+            <tr>
+            <td>${val.no}</td>
+            <td>${val.wilayah}</td>
+            <td>${val.targetpbt}</td>
+            <td>${val.targetshat}</td>
+            <td>${val.targetk4}</td>
+            <td>${val.pemberkasan}</td>
+            <td>${val.k1}</td>
+            <td>${new Number(val.pemberkasan - val.k1).toFixed(0)}</td>
+            </tr>
+    `}).toString().replaceAll(",", "");
+
+    var html = `<html>
+    <head>
+        <style>
+            body {
+                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+                margin: 0;
+                padding: 0;
+                font-size: 12px;
+            }
+
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            table, th, td {
+                border: 1px solid #2c2c2c;
+            }
+
+            th, td {
+                padding: 0.5em;
+            }
+
+            h1 {
+                text-align: center;
+            }
+
+            th {
+                background: #4d2f00;
+                font-weight: 700;
+                color: #fff;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Potensi K1</h1>
+        <table>
+            <thead>
+                <th>No</th>
+                <th>Wilayah</th>
+                <th>Target PBT</th>
+                <th>Target SHAT</th>
+                <th>Target K4</th>
+                <th>Pemberkasan *</th>
+                <th>K1</th>      
+                <th>Didorong Ke K1</th>      
+            </thead>
+            <tbody id="table-body">
+                ${table}
+            </tbody>
+        </table>
+    </body>
+    </html>`;
+
+    //render image
+    await nodeHtmlToImage({
+        output: __dirname + '/../image/rekap_potensi.png',
+        html: html,
+        puppeteerArgs: {
+            defaultViewport: {
+                width: 1280,
+                height: 720,
+            }
+        }
+    });
+
+    console.log("success");
+}
+
+
 async function renderKinerjaKantah() {
     const dataKinerjaKantah = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/kinerjakantah.json')));
     let table = dataKinerjaKantah.map((val) => {
@@ -248,7 +617,7 @@ async function renderKuantitas() {
     });
 
     let table = data.map(val => {
-        if(val.kantah == 'Total') {
+        if (val.kantah == 'Total') {
             return;
         }
 
@@ -282,7 +651,7 @@ async function renderKuantitas() {
     <tr>
         <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">Total</td>
         <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${data[data.length - 1].targetpbt}</td>
-        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${((data[data.length - 1].survei / data[data.length - 1].targetpbt) * 100).toFixed(2) }%</td>
+        <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${((data[data.length - 1].survei / data[data.length - 1].targetpbt) * 100).toFixed(2)}%</td>
         <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${(data[data.length - 1].pemetaan / data[data.length - 1].targetpbt * 100).toFixed(2)} %</td>
         <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${new Number(data[data.length - 1].capaianpbt)} %</td>
         <td style="background: #4d2f00;color:#fff;font-weight: 700;text-align: center;">${data[data.length - 1].targetshat}</td>
@@ -472,5 +841,9 @@ module.exports = {
     renderEarlyWarning,
     renderKinerja,
     renderKinerjaKantah,
-    renderKuantitas
+    renderKuantitas,
+    renderRealisasiCapaianPTSL,
+    renderPuldadis,
+    renderPemberkasan,
+    renderPotensiK1,
 }

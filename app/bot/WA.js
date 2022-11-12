@@ -1,8 +1,4 @@
 const qrcode = require('qrcode-terminal');
-const fs = require('fs');
-const path = require('path');
-const cron = require('node-cron');
-const db = require('../database/Database');
 const { Client, LocalAuth, Buttons, MessageMedia, NoAuth } = require('whatsapp-web.js');
 
 const client = new Client({
@@ -22,9 +18,6 @@ const LIST_CONTACT = [
 ];
 
 const GROUP_SPNTB = "6281328030654-1424945309@g.us";
-
-const date = new Date();
-let tanggal = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 
 client.on('qr', (qr) => {
   qrcode.generate(qr, { small: true });
@@ -61,36 +54,6 @@ client.on('ready', async () => {
   //     console.log('Terkirim ke :' + number);
   //   }
   // });
-});
-
-
-client.on("message", async (msg) => {
-  const conn = db.conn;
-  const USERS = [];
-
-  
-  client.sendMessage(msg.from, "*ERROR 503* Maaf kami sedang mengalami gangguan 🙏😥")
-
-  let getUser = new Promise(function (resolve, reject) {
-    conn.serialize(function () {
-      conn.each("SELECT * FROM users", function (err, row) {
-        USERS.push(row); //pushing rows into array
-      }, function () {
-        resolve(true); // calling function when all rows have been pulled
-      });//closing connection
-    });
-  });
-
-  await getUser;
-
-  if (USERS.find(val => val.nomer == msg.from) === undefined) {
-    client.sendMessage(msg.from, `Halo ${(await msg.getContact()).pushname},\nSelamat Datang di 🎁 *SIPANTAU* (Sistem Pemantauan PTSL v1)\n*'!info'* Tentang bot\n*!pantau* Laporkan desa ndl yang perlu dimaintanance\n*!detaildesa* Analisis desa NDL\n*!report* Laporan lengkap PTSL\n\n©2022 with ❤️\nby Kantor Wilayah Badan Pertanahan Nasional Nusa Tenggara Barat\n*#NTBKINILEBIHBAIK*`);
-    db.insertUsers(msg.from, (await msg.getContact()).pushname);
-  }
-
-  if (msg.body === '!info') {
-    msg.reply(`🎁 *SIPANTAU* (Sistem Pemantauan PTSL v1)\n*'!info'* tentang bot\n*!pantau* laporkan desa ndl yang perlu dimaintanance\n*!detaildesa* analisis desa NDL\n*!report* laporan lengkap PTSL\n\n©2022 with ❤️\nby Kantor Wilayah Badan Pertanahan Nasional Nusa Tenggara Barat\n*#NTBKINILEBIHBAIK*`);
-  }
 });
 
 module.exports = {
