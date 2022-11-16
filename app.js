@@ -112,31 +112,38 @@ waBot.client.on("message", async (msg) => {
         const getter = new Getter();
 
         const coll = db.getCollection('rekapkuantitas');
-        let data = coll.find({
-            $where: function () {
-                const now = new Date();
-                return now.toLocaleDateString() === this.date.toLocaleDateString();
-            }
-        });
+        let data = coll.find({});
 
         let dataArr = await data.toArray();
-        if (dataArr.length === 0) {
+
+        let filterData = dataArr.filter(val => {
+            let now = new Date();
+            let dataDate = new Date(val.date);
+            
+            return now.toLocaleDateString() === dataDate.toLocaleDateString();
+        });
+
+        if (filterData.length === 0) {
             await getter.getRekapTahapan(msg.from);
 
-            data = coll.find({
-                $where: function () {
-                    const now = new Date();
-                    return now.toLocaleDateString() === this.date.toLocaleDateString();
-                }
-            });
+            data = coll.find({});
 
             dataArr = await data.toArray();
+
+            filterData = dataArr.filter(val => {
+                let now = new Date();
+                let dataDate = new Date(val.date);
+                
+                return now.toLocaleDateString() === dataDate.toLocaleDateString();
+            });
         }
 
-        await render.renderRealisasiCapaianPTSL(dataArr);
-        await render.renderPuldadis(dataArr);
-        await render.renderPemberkasan(dataArr);
-        await render.renderPotensiK1(dataArr);
+
+
+        await render.renderRealisasiCapaianPTSL(filterData);
+        await render.renderPuldadis(filterData);
+        await render.renderPemberkasan(filterData);
+        await render.renderPotensiK1(filterData);
 
         waBot.client.sendMessage(msg.from, "berikut kami sampaikan capaian puldadis per hari ini: ");
         waBot.client.sendMessage(msg.from, MessageMedia.fromFilePath('./image/realisasicapaianptsl.png'));
@@ -155,11 +162,12 @@ waBot.client.on("message", async (msg) => {
     //     });
     // }
 
-    // if (msg.body === '!update') {
-    //     waBot.client.sendMessage(msg.from, 'Tunggu sebentar ya 🙏, kami sedang mengambil data terbaru')
-    //     await getter.getAll();
-    //     waBot.client.sendMessage(msg.from, 'Sudah')
-    // }
+    if (msg.body === '!update') {
+        waBot.client.sendMessage(msg.from, 'Tunggu sebentar ya 🙏, kami sedang mengambil data terbaru');
+        const getter = new Getter();
+        await getter.getDetailDesaLengkap(msg.from);
+        await getter.getRekapTahapan(msg.from);
+    }
 
     // if (msg.body === '!sendtoall') {
     //     await render.renderEarlyWarning();

@@ -11,7 +11,7 @@ class Getter {
     static HOST = '6285640121314@c.us';
     static browser;
 
-    async startPuppeter(headless = true) {
+    async startPuppeter(headless = false) {
         Getter.browser = await puppeteer.launch({
             userDataDir: './datadir',
             args: ["--no-sandbox"],
@@ -46,7 +46,7 @@ class Getter {
         });
 
 
-        await page.goto('https://statistik.atrbpn.go.id/', {
+        await page.goto('https://ptsl-statistik.atrbpn.go.id/', {
             waitUntil: 'networkidle2',
         });
 
@@ -65,7 +65,7 @@ class Getter {
             }
 
             this.usernameHandler(user, page); //if multiple user send something
-        })
+        });
     }
 
     async passwordHandler(user, page) {
@@ -74,10 +74,11 @@ class Getter {
                 await page.type('#inputPassword', msg.body);
                 await page.click('#kc-next');
                 await this.tokenHandler(user, page);
+                return;
             }
-        })
 
-        this.passwordHandler(user, page);
+            this.passwordHandler(user, page);
+        });
     }
 
     async tokenHandler(user, page) {
@@ -158,11 +159,16 @@ class Getter {
         try {
             const page = await Getter.browser.newPage();
 
-            const cookiesStr = fs.readFileSync('./cookies.json').toString();
+            const cookiesStr = fs.readFileSync('./cookies.json');
             const cookies = JSON.parse(cookiesStr);
             await page.setCookie(...cookies);
 
-            await page.goto("https://ptsl-statistik.atrbpn.go.id/BidangTanah");
+            await page.goto("https://ptsl-statistik.atrbpn.go.id/BidangTanah/", {
+                waitUntil: 'networkidle2',
+            });
+
+            await page.waitForNetworkIdle();
+
             await page.waitForSelector("#htplaceholder > tr:nth-child(23) > td:nth-child(2)", { timeout: 100000 });
             await page.click("#htplaceholder > tr:nth-child(23) > td:nth-child(2)");
             await page.waitForNetworkIdle();
@@ -217,8 +223,6 @@ class Getter {
             await Getter.browser.close();
             await wa.client.sendMessage(user, "Query Sukses");
 
-
-
         } catch (err) {
             console.log(err);
         }
@@ -235,7 +239,7 @@ class Getter {
         try {
             const page = await Getter.browser.newPage();
 
-            const cookiesStr = fs.readFileSync('./cookies.json').toString();
+            const cookiesStr = fs.readFileSync('./cookies.json');
             const cookies = JSON.parse(cookiesStr);
             await page.setCookie(...cookies);
 
@@ -274,7 +278,7 @@ class Getter {
                     await page.$eval(`#htplaceholder > tr:nth-child(${iKantah}) > td:nth-child(25)`, el => el.textContent.trim().replaceAll("\n", "").replace(",", ".")),
                 )
 
-                coll.insertOne(rekap)
+                coll.insertOne(rekap);
             }
 
             await Getter.browser.close();
