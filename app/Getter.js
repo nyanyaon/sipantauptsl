@@ -284,6 +284,8 @@ class Getter {
             await Getter.browser.close();
             await wa.client.sendMessage(user, "Query Sukses");
 
+            
+
         } catch (err) {
             console.log(err);
         }
