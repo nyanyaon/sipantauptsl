@@ -17,7 +17,7 @@ USER pptruser
 
 WORKDIR /home/pptruser
 
-COPY puppeteer-latest.tgz puppeteer-core-latest.tgz ./
+# COPY puppeteer-latest.tgz puppeteer-core-latest.tgz ./
 
 # Install puppeteer and puppeteer-core into /home/pptruser/node_modules.
 RUN npm i ./puppeteer-core-latest.tgz ./puppeteer-latest.tgz \
